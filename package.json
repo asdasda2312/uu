@@ -4,6 +4,7 @@
   "description": "A Discord bot",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm install",  // Automatically installs dependencies before starting the bot
     "start": "node index.js"
   },
   "dependencies": {
