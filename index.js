@@ -51,7 +51,20 @@ client.on('messageCreate', async (message) => {
     // Prepare content to forward
     const forwardContent = {
       content: message.content || null,
-      embeds: message.embeds.map((embed) => removeFooterFromEmbed(embed)),
+      embeds: message.embeds.map((embed) => {
+        const updatedEmbed = removeFooterFromEmbed(embed);
+        
+        // Forwarding images and other attachments explicitly
+        if (embed.image) {
+          updatedEmbed.image = embed.image;
+        }
+        if (embed.thumbnail) {
+          updatedEmbed.thumbnail = embed.thumbnail;
+        }
+
+        return updatedEmbed;
+      }),
+      files: message.attachments.size > 0 ? [...message.attachments.values()] : [], // Forward file attachments
     };
 
     // Send the message to the target channel and store the forwarded message ID
@@ -84,7 +97,20 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
     // Prepare updated content to forward
     const updatedContent = {
       content: newMessage.content || null,
-      embeds: newMessage.embeds.map((embed) => removeFooterFromEmbed(embed)),
+      embeds: newMessage.embeds.map((embed) => {
+        const updatedEmbed = removeFooterFromEmbed(embed);
+
+        // Forwarding images and other attachments explicitly
+        if (embed.image) {
+          updatedEmbed.image = embed.image;
+        }
+        if (embed.thumbnail) {
+          updatedEmbed.thumbnail = embed.thumbnail;
+        }
+
+        return updatedEmbed;
+      }),
+      files: newMessage.attachments.size > 0 ? [...newMessage.attachments.values()] : [], // Forward file attachments
     };
 
     // Get the forwarded message and edit it
