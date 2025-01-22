@@ -1,4 +1,6 @@
 const { Client, GatewayIntentBits, PresenceUpdateStatus } = require('discord.js');
+const express = require('express');
+
 // --- Environment Variables ---
 const BOT_TOKEN = process.env.BOT_TOKEN; // Your Discord bot token
 const TARGET_CHANNEL_ID = '1330516299255775265'; // The target channel ID
@@ -100,3 +102,12 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 
 // --- Log in the bot ---
 client.login(BOT_TOKEN).catch(console.error);
+
+// --- Keep the Bot Alive ---
+const app = express();
+app.get('/', (req, res) => res.send('Bot is running!'));
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🌐 Express server running on port ${PORT}`);
+});
