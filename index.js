@@ -77,47 +77,49 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// --- Listen for message edits in the source channel ---
+// --- Listen for message edits across the entire server ---
 client.on('messageUpdate', async (oldMessage, newMessage) => {
-  if (newMessage.channel.id !== SOURCE_CHANNEL_ID) return; // Only process edits in the source channel
+  // Ensure we're handling only the messages from the source channel or messages that have been forwarded
+  if (!oldMessage || !newMessage || newMessage.content === oldMessage.content) return; // Skip if content didn't change
 
   console.log(`🔄 Updating forwarded message: "${oldMessage.content}" → "${newMessage.content}"`);
 
-  // Get the forwarded message ID from the map
-  const forwardedMessageId = forwardedMessages.get(oldMessage.id);
-  if (!forwardedMessageId) return;
-
   try {
-    const targetChannel = await client.channels.fetch(TARGET_CHANNEL_ID);
-    if (!targetChannel) {
-      console.error('❌ Could not find the target channel!');
-      return;
-    }
+    const forwardedMessageId = forwardedMessages.get(oldMessage.id);
 
-    // Prepare updated content to forward
-    const updatedContent = {
-      content: newMessage.content || null,
-      embeds: newMessage.embeds.map((embed) => {
-        const updatedEmbed = removeFooterFromEmbed(embed);
+    // If this message was forwarded, update it
+    if (forwardedMessageId) {
+      const targetChannel = await client.channels.fetch(TARGET_CHANNEL_ID);
+      if (!targetChannel) {
+        console.error('❌ Could not find the target channel!');
+        return;
+      }
 
-        // Forwarding images and other attachments explicitly
-        if (embed.image) {
-          updatedEmbed.image = embed.image;
-        }
-        if (embed.thumbnail) {
-          updatedEmbed.thumbnail = embed.thumbnail;
-        }
+      // Prepare updated content to forward
+      const updatedContent = {
+        content: newMessage.content || null,
+        embeds: newMessage.embeds.map((embed) => {
+          const updatedEmbed = removeFooterFromEmbed(embed);
 
-        return updatedEmbed;
-      }),
-      files: newMessage.attachments.size > 0 ? [...newMessage.attachments.values()] : [], // Forward file attachments
-    };
+          // Forwarding images and other attachments explicitly
+          if (embed.image) {
+            updatedEmbed.image = embed.image;
+          }
+          if (embed.thumbnail) {
+            updatedEmbed.thumbnail = embed.thumbnail;
+          }
 
-    // Get the forwarded message and edit it
-    const forwardedMessage = await targetChannel.messages.fetch(forwardedMessageId);
-    if (forwardedMessage) {
-      await forwardedMessage.edit(updatedContent); // Edit the message in the target channel
-      console.log(`✅ Forwarded message updated: "${newMessage.content}"`);
+          return updatedEmbed;
+        }),
+        files: newMessage.attachments.size > 0 ? [...newMessage.attachments.values()] : [], // Forward file attachments
+      };
+
+      // Get the forwarded message and edit it
+      const forwardedMessage = await targetChannel.messages.fetch(forwardedMessageId);
+      if (forwardedMessage) {
+        await forwardedMessage.edit(updatedContent); // Edit the message in the target channel
+        console.log(`✅ Forwarded message updated: "${newMessage.content}"`);
+      }
     }
   } catch (error) {
     console.error('❌ Error updating forwarded message:', error);
