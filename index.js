@@ -1,7 +1,4 @@
 const { Client, GatewayIntentBits, PresenceUpdateStatus } = require('discord.js');
-const express = require('express');
-const axios = require('axios'); // Import axios to make HTTP requests
-
 // --- Environment Variables ---
 const BOT_TOKEN = process.env.BOT_TOKEN; // Your Discord bot token
 const TARGET_CHANNEL_ID = '1331599991403315241'; // The target channel ID
@@ -103,23 +100,3 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
 
 // --- Log in the bot ---
 client.login(BOT_TOKEN).catch(console.error);
-
-// --- Keep the Bot Alive ---
-const app = express();
-app.get('/', (req, res) => res.send('Bot is running!'));
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`🌐 Express server running on port ${PORT}`);
-});
-
-// Ping the bot every 15 seconds to keep it alive
-setInterval(() => {
-  axios.get('http://localhost:3000')
-    .then(response => {
-      console.log('🔄 Pinging bot...');
-    })
-    .catch(error => {
-      console.error('❌ Error pinging bot:', error);
-    });
-}, 15000); // 15 seconds interval
