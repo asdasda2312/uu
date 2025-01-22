@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, PresenceUpdateStatus } = require('discord.js');
 // --- Environment Variables ---
 const BOT_TOKEN = process.env.BOT_TOKEN; // Your Discord bot token
-const TARGET_CHANNEL_ID = '1331599991403315241'; // The target channel ID
+const TARGET_CHANNEL_ID = '1331611315453562910'; // The target channel ID
 const SOURCE_CHANNEL_ID = '1317506444412719204'; // The source channel ID
 
 // --- Discord Client ---
