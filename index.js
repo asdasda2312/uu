@@ -1,4 +1,6 @@
 const { Client, GatewayIntentBits, PresenceUpdateStatus } = require('discord.js');
+const http = require('http'); // Import http module
+
 // --- Environment Variables ---
 const BOT_TOKEN = process.env.BOT_TOKEN; // Your Discord bot token
 const TARGET_CHANNEL_ID = '1331611315453562910'; // The target channel ID
@@ -124,6 +126,17 @@ client.on('messageUpdate', async (oldMessage, newMessage) => {
   } catch (error) {
     console.error('❌ Error updating forwarded message:', error);
   }
+});
+
+// --- Create an HTTP server to satisfy Render's requirements ---
+const server = http.createServer((req, res) => {
+  res.statusCode = 200;
+  res.end('OK'); 
+});
+
+// Start the HTTP server on port 3000
+server.listen(3000, () => {
+  console.log('HTTP server listening on port 3000');
 });
 
 // --- Log in the bot ---
